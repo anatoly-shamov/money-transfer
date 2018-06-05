@@ -1,0 +1,45 @@
+group 'info.ashamov'
+version '1.0'
+
+apply plugin: 'java'
+apply plugin: 'application'
+
+mainClassName = "info.ashamov.moneytransfer.Application"
+
+sourceCompatibility = 1.8
+
+ext {
+    h2Version = '1.4.197'
+    httpclientVersion = '4.5.5'
+    jacksonVersion = '2.9.5'
+    jerseyVersion = '2.25.1'
+    jettyVersion = '9.4.6.v20170531'
+    junitVersion = '4.12'
+    log4jVersion = '2.8'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile "com.h2database:h2:${h2Version}"
+
+    compile "org.apache.httpcomponents:httpclient:${httpclientVersion}"
+
+    compile "com.fasterxml.jackson.core:jackson-annotations:${jacksonVersion}"
+    compile "com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:${jacksonVersion}"
+
+    compile "org.glassfish.jersey.core:jersey-server:${jerseyVersion}"
+    compile "org.glassfish.jersey.containers:jersey-container-servlet-core:${jerseyVersion}"
+    compile "org.glassfish.jersey.containers:jersey-container-jetty-http:${jerseyVersion}"
+    compile "org.glassfish.jersey.media:jersey-media-json-jackson:${jerseyVersion}"
+
+    compile "org.eclipse.jetty:jetty-server:${jettyVersion}"
+    compile "org.eclipse.jetty:jetty-servlet:${jettyVersion}"
+
+    compile "org.apache.logging.log4j:log4j-api:${log4jVersion}"
+    compile "org.apache.logging.log4j:log4j-core:${log4jVersion}"
+
+    testCompile "junit:junit:${junitVersion}"
+}
