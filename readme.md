@@ -14,7 +14,7 @@ Root API path is http://localhost:8080
 
 ##### Endpoints
 
-| Method | Path | Description | On success returns |
+| Method | Path | Description | Successful response |
 |------|------|------|------|
 |POST|/account/create|create new account|201 Created + Location header|
 |GET|/account/all|receive list of all accounts|200 OK + list of all account|
