@@ -153,11 +153,32 @@ class AccountDAOImpl implements AccountDAO {
                      ResultSet.TYPE_FORWARD_ONLY,
                      ResultSet.CONCUR_UPDATABLE)) {
 
+            if (moneyTransfer.getAmount().compareTo(BigDecimal.ZERO) < 0) {
+                throw new InternalException("Amount can't be negative", Response.Status.BAD_REQUEST);
+            }
+
+            long senderId = moneyTransfer.getSenderAccountId();
+            long receiverId = moneyTransfer.getReceiverAccountId();
+
+            if (senderId == receiverId) {
+                throw new InternalException("Sender and receiver accounts should be different", Response.Status.BAD_REQUEST);
+            }
+
+            senderStatement.setLong(1, senderId);
+            receiverStatement.setLong(1, receiverId);
+
             connection.setAutoCommit(false);
 
-            Long senderId = moneyTransfer.getSenderAccountId();
-            senderStatement.setLong(1, senderId);
-            ResultSet senderRS = senderStatement.executeQuery();
+            ResultSet senderRS, receiverRS;
+            //obtain DB locks always in ASC order by account id to avoid deadlock
+            if (senderId < receiverId) {
+                senderRS = senderStatement.executeQuery();
+                receiverRS = receiverStatement.executeQuery();
+            } else {
+                receiverRS = receiverStatement.executeQuery();
+                senderRS = senderStatement.executeQuery();
+            }
+
             if (!senderRS.next()) {
                 throw new InternalException("Wrong sender, account id " + senderId, Response.Status.BAD_REQUEST);
             }
@@ -166,9 +187,6 @@ class AccountDAOImpl implements AccountDAO {
                 throw new InternalException("Insufficient funds, account id " + senderId, Response.Status.BAD_REQUEST);
             }
 
-            Long receiverId = moneyTransfer.getReceiverAccountId();
-            receiverStatement.setLong(1, receiverId);
-            ResultSet receiverRS = receiverStatement.executeQuery();
             if (!receiverRS.next()) {
                 throw new InternalException("Wrong receiver, account id " + senderId, Response.Status.BAD_REQUEST);
             }

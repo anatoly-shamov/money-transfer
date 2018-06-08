@@ -24,6 +24,32 @@ public class TestMoneyTransferController extends TestController {
     }
 
     @Test
+    public void negativeAmountOfMoneyNotTransferred() throws Exception {
+        MoneyTransfer moneyTransfer =
+                new MoneyTransfer(FIRST_EUR_ACCOUNT_ID, SECOND_EUR_ACCOUNT_ID, TRANSFER_AMOUNT.negate());
+        HttpPost request = new HttpPost(uriBuilder.setPath("transfer").build());
+        request.setHeader("Content-Type", "application/json");
+        request.setEntity(new StringEntity(mapper.writeValueAsString(moneyTransfer)));
+        try (CloseableHttpResponse response = client.execute(request)) {
+            int statusCode = response.getStatusLine().getStatusCode();
+            assertEquals(BAD_REQUEST.getCode(), statusCode);
+        }
+    }
+
+    @Test
+    public void moneyNotTransferredForSameAccount() throws Exception {
+        MoneyTransfer moneyTransfer =
+                new MoneyTransfer(FIRST_EUR_ACCOUNT_ID, FIRST_EUR_ACCOUNT_ID, TRANSFER_AMOUNT);
+        HttpPost request = new HttpPost(uriBuilder.setPath("transfer").build());
+        request.setHeader("Content-Type", "application/json");
+        request.setEntity(new StringEntity(mapper.writeValueAsString(moneyTransfer)));
+        try (CloseableHttpResponse response = client.execute(request)) {
+            int statusCode = response.getStatusLine().getStatusCode();
+            assertEquals(BAD_REQUEST.getCode(), statusCode);
+        }
+    }
+
+    @Test
     public void moneyNotTransferredFromNonexistentSender() throws Exception {
         MoneyTransfer moneyTransfer = new MoneyTransfer(NONEXISTENT_ID, SECOND_EUR_ACCOUNT_ID, TRANSFER_AMOUNT);
         HttpPost request = new HttpPost(uriBuilder.setPath("transfer").build());

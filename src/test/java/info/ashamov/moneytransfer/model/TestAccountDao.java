@@ -146,6 +146,23 @@ public class TestAccountDao {
     }
 
     @Test
+    public void negativeAmountOfMoneyNotTransferred() {
+        expectedException.expect(InternalException.class);
+        expectedException.expectMessage(startsWith("Amount can't be negative"));
+        MoneyTransfer moneyTransfer =
+                new MoneyTransfer(TestData.FIRST_EUR_ACCOUNT_ID, TestData.SECOND_EUR_ACCOUNT_ID, TestData.TRANSFER_AMOUNT.negate());
+        dao.transfer(moneyTransfer);
+    }
+
+    @Test
+    public void moneyNotTransferredForSameAccount() {
+        expectedException.expect(InternalException.class);
+        expectedException.expectMessage(startsWith("Sender and receiver accounts should be different"));
+        MoneyTransfer moneyTransfer = new MoneyTransfer(TestData.FIRST_EUR_ACCOUNT_ID, TestData.FIRST_EUR_ACCOUNT_ID, TestData.TRANSFER_AMOUNT);
+        dao.transfer(moneyTransfer);
+    }
+
+    @Test
     public void moneyNotTransferredFromNonexistentSender() {
         expectedException.expect(InternalException.class);
         expectedException.expectMessage(startsWith("Wrong sender, account id"));
